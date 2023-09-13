@@ -42,5 +42,4 @@ if __name__ == '__main__':
         cursor.close()
         # 关闭数据库连接
         conn.close()
-        
         raise e
