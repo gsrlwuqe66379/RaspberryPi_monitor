@@ -6,6 +6,7 @@
 
 
 ## Raspberrypi + picamera
+树莓派摄像头与流式传输画面
 
 ### Installation
 
@@ -23,4 +24,20 @@ $ python appCam.py
 
 ![](image.png)
 
+## Frontend 
+
+
+### Installatio
+```bash
+$ cd vue-frontend
+$ npm install
+```
+###
+```bash
+$ npm run dev
+```
+
 ### Todo
+[ ]后端sanic框架
+
+
