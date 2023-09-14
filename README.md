@@ -27,7 +27,7 @@ $ python appCam.py
 ## Frontend 
 
 
-### Installatio
+### Installation
 ```bash
 $ cd vue-frontend
 $ npm install
@@ -40,6 +40,7 @@ $ npm run dev
 ### Todo
 - [ ] 后端sanic框架  
 - [ ] 图像识别接口  
-- [ ] 后台图片上传接口  
-- [ ] 前端图片上传  
+- [ ] 后台图片上传返回识别结果  
+- [ ] 前端展示识别结果
+- [ ] 前端控制支持
 
