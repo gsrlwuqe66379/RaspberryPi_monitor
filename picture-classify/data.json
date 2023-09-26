@@ -1,0 +1,34 @@
+{
+  "data": [
+    {
+      "time": "2023-09-26T09:45:00",
+      "temperature": 25.5,
+      "humidity": 50.2,
+      "light": 500
+    },
+    {
+      "time": "2023-09-26T10:00:00",
+      "temperature": 25.5,
+      "humidity": 50.2,
+      "light": 500
+    },
+    {
+      "time": "2023-09-26T10:15:00",
+      "temperature": 25.8,
+      "humidity": 51.0,
+      "light": 510
+    },
+    {
+      "time": "2023-09-26T10:30:00",
+      "temperature": 26.2,
+      "humidity": 50.8,
+      "light": 520
+    },
+    {
+      "time": "2023-09-26T10:45:00",
+      "temperature": 26.5,
+      "humidity": 51.5,
+      "light": 530
+    }
+  ]
+}
