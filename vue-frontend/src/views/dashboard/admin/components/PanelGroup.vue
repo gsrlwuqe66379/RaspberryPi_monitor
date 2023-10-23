@@ -14,20 +14,20 @@
       </div>
     </el-col>
     <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
-      <div class="card-panel" @click="handleSetLineChartData('messages')">
+      <div class="card-panel" @click="handleSetLineChartData('temperature')">
         <div class="card-panel-icon-wrapper icon-message">
           <svg-icon icon-class="theme" class-name="card-panel-icon" />
         </div>
         <div class="card-panel-description">
           <div class="card-panel-text">
-            Temputure
+            Temperature
           </div>
-          <count-to :start-val="0" :end-val=temputure :duration="3000" class="card-panel-num" />
+          <count-to :start-val=oldtemperature :end-val=temperature :duration="3000" class="card-panel-num" />
         </div>
       </div>
     </el-col>
     <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
-      <div class="card-panel" @click="handleSetLineChartData('purchases')">
+      <div class="card-panel" @click="handleSetLineChartData('humidity')">
         <div class="card-panel-icon-wrapper icon-money">
           <svg-icon icon-class="example" class-name="card-panel-icon" />
         </div>
@@ -35,12 +35,12 @@
           <div class="card-panel-text">
             Humidity
           </div>
-          <count-to :start-val="0" :end-val=humidity :duration="3200" class="card-panel-num" />
+          <count-to :start-val=oldhumidity :end-val=humidity :duration="3200" class="card-panel-num" />
         </div>
       </div>
     </el-col>
     <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
-      <div class="card-panel" @click="handleSetLineChartData('shoppings')">
+      <div class="card-panel" @click="handleSetLineChartData('light')">
         <div class="card-panel-icon-wrapper icon-shopping">
           <svg-icon icon-class="eye" class-name="card-panel-icon" />
         </div>
@@ -48,7 +48,7 @@
           <div class="card-panel-text">
             Light Intensity
           </div>
-          <count-to :start-val="0" :end-val=light :duration="3600" class="card-panel-num" />
+          <count-to :start-val=oldlight :end-val=light :duration="3600" class="card-panel-num" />
         </div>
       </div>
     </el-col>
@@ -57,8 +57,9 @@
 
 <script>
 import CountTo from 'vue-count-to'
-import { getSensorData } from '@/api/sensor'
+import { getcurrentSensorData } from '@/api/sensor'
 import data from '@/views/pdf/content'
+import { set } from 'nprogress'
 
 export default {
   components: {
@@ -67,26 +68,39 @@ export default {
   data() {
     return {
       time: '',
-      temputure: 0,
+      temperature: 0,
       humidity: 0,
-      light: 0
+      light: 0,
+      oldtemperature: 0,
+      oldhumidity: 0,
+      oldlight: 0
     }
   },
   methods: {
     handleSetLineChartData(type) {
       this.$emit('handleSetLineChartData', type)
     },
+    updateTime() {
+      const now = new Date()
+      const hours = now.getHours().toString().padStart(2, '0')
+      const minutes = now.getMinutes().toString().padStart(2, '0')
+      const seconds = now.getSeconds().toString().padStart(2, '0')
+      this.time = `${hours}:${minutes}:${seconds}`
+    },
     fetchData() {
-      getSensorData().then(response => {
-        console.log(response.data)
-        const data = JSON.parse(response.data)
+      this.oldtemperature = this.temperature
+      this.oldhumidity = this.humidity
+      this.oldlight = this.light
+      getcurrentSensorData().then(response => {
+        // console.log(response.data)
+        const data = response.data
         console.log(data)
         const time = data['data'][0].time.substring(11, 19)
         const temperature = data['data'][0].temperature
         const humidity = data['data'][0].humidity
         const light = data['data'][0].light
         this.time = time
-        this.temputure = temperature
+        this.temperature = temperature
         this.humidity = humidity
         this.light = light
       }).catch(err => {
@@ -95,8 +109,9 @@ export default {
     }},
   created() {
       this.fetchData()
+      setInterval(this.fetchData, 10000)
+      setInterval(this.updateTime, 1000)
   }
-  
 }
 </script>
 

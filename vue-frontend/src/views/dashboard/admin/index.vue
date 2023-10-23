@@ -20,23 +20,24 @@ import BarChart from './components/BarChart'
 import TransactionTable from './components/TransactionTable'
 import TodoList from './components/TodoList'
 import BoxCard from './components/BoxCard'
+import { getSensorData } from '@/api/sensor'
 
-const lineChartData = {
+let lineChartData = {
   newVisitis: {
     expectedData: [100, 120, 161, 134, 105, 160, 165],
     actualData: [120, 82, 91, 154, 162, 140, 145]
   },
-  messages: {
-    expectedData: [200, 192, 120, 144, 160, 130, 140],
-    actualData: [180, 160, 151, 106, 145, 150, 130]
+  temperature: {
+    expectedData: [20, 19, 12, 14, 16, 13, 14],
+    actualData: []
   },
-  purchases: {
-    expectedData: [80, 100, 121, 104, 105, 90, 100],
-    actualData: [120, 90, 100, 138, 142, 130, 130]
+  humidity: {
+    expectedData: [80, 60, 40, 45, 65, 75, 80],
+    actualData: []
   },
-  shoppings: {
-    expectedData: [130, 140, 141, 142, 145, 150, 160],
-    actualData: [120, 82, 91, 154, 162, 140, 130]
+  light: {
+    expectedData: [60, 140, 250, 400, 545, 350, 260],
+    actualData: []
   }
 }
 
@@ -55,13 +56,34 @@ export default {
   },
   data() {
     return {
-      lineChartData: lineChartData.newVisitis
+      lineChartData: lineChartData.temperature,
+      time: '',
+      temperature: 0,
+      humidity: 0,
+      light: 0
     }
   },
   methods: {
     handleSetLineChartData(type) {
       this.lineChartData = lineChartData[type]
+    },
+    fetchdata(){
+      getSensorData().then(response => {
+        this.time = response.data.time
+        this.temperature = response.data.temperature
+        this.humidity = response.data.humidity
+        this.light = response.data.light
+        console.log(this.time)
+        console.log(lineChartData)
+        lineChartData.temperature.actualData=this.temperature
+        lineChartData.humidity.actualData=this.humidity
+        lineChartData.light.actualData=this.light
+        console.log(lineChartData)
+      })
     }
+  },
+  created() {
+    this.fetchdata()
   }
 }
 </script>
