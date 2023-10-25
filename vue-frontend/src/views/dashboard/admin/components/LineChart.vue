@@ -90,10 +90,10 @@ export default {
           }
         },
         legend: {
-          data: ['expected', 'actual']
+          data: ['last week', 'actual']
         },
         series: [{
-          name: 'expected', itemStyle: {
+          name: 'last week', itemStyle: {
             normal: {
               color: '#FF005A',
               lineStyle: {

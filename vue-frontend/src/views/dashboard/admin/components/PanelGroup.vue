@@ -1,19 +1,6 @@
 <template>
   <el-row :gutter="40" class="panel-group">
     <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
-      <div class="card-panel" @click="handleSetLineChartData('newVisitis')">
-        <div class="card-panel-icon-wrapper icon-people">
-          <svg-icon icon-class="peoples" class-name="card-panel-icon" />
-        </div>
-        <div class="card-panel-description">
-          <div class="card-panel-text">
-            Sensor's Time
-          </div>
-          <p class="card-panel-num">{{ time }}</p>
-        </div>
-      </div>
-    </el-col>
-    <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
       <div class="card-panel" @click="handleSetLineChartData('temperature')">
         <div class="card-panel-icon-wrapper icon-message">
           <svg-icon icon-class="theme" class-name="card-panel-icon" />
@@ -52,6 +39,21 @@
         </div>
       </div>
     </el-col>
+    <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
+      <div class="card-panel" @click="handleSetLineChartData('newVisitis')">
+        <div class="card-panel-icon-wrapper icon-message">
+          <svg-icon icon-class="dashboard" class-name="card-panel-icon" />
+        </div>
+        <div class="card-panel-description">
+          <div class="card-panel-text">
+            Air Quality
+          </div>
+          <count-to :start-val=oldquality :end-val=quality :duration="3000" class="card-panel-num" />
+        </div>
+      </div>
+    </el-col>
+   
+
   </el-row>
 </template>
 
@@ -71,9 +73,11 @@ export default {
       temperature: 0,
       humidity: 0,
       light: 0,
+      quality: 0,
       oldtemperature: 0,
       oldhumidity: 0,
-      oldlight: 0
+      oldlight: 0,
+      oldquality: 0
     }
   },
   methods: {
@@ -91,18 +95,22 @@ export default {
       this.oldtemperature = this.temperature
       this.oldhumidity = this.humidity
       this.oldlight = this.light
+      this.oldquality = this.quality
       getcurrentSensorData().then(response => {
         // console.log(response.data)
         const data = response.data
         console.log(data)
-        const time = data['data'][0].time.substring(11, 19)
-        const temperature = data['data'][0].temperature
-        const humidity = data['data'][0].humidity
-        const light = data['data'][0].light
-        this.time = time
+        // const time = data.time.substring(11, 19)
+        const temperature = data.temperature
+        const humidity = data.humidity
+        const light = data.light
+        const quality = data.quality
+        // this.time = time
         this.temperature = temperature
         this.humidity = humidity
         this.light = light
+        this.quality = quality
+
       }).catch(err => {
         console.log(err)
       })
