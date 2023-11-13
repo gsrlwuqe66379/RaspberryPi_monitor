@@ -1,10 +1,13 @@
-from sanic import Sanic
+import threading
+
+from sanic import Sanic, response
 from sanic.response import json
 from sanic.response import text
 from sanic_cors import CORS
 import psycopg2
 import random
 import time
+import cv2
 
 app = Sanic(__name__)
 CORS(app)
@@ -85,6 +88,45 @@ async def get_temperature(request):
 @app.route("/")
 async def hello_world(request):
     return text("Hello, world.")
+
+
+# server.py
+frame_buffer = None
+buffer_lock = threading.Lock()
+
+
+def capture_frames():
+    global frame_buffer
+    camera = cv2.VideoCapture(0)
+    while True:
+        success, frame = camera.read()  # read the camera frame
+        if not success:
+            break
+        else:
+            ret, buffer = cv2.imencode('.jpg', frame)
+            with buffer_lock:
+                frame_buffer = buffer.tobytes()
+
+
+# Start the capture thread
+capture_thread = threading.Thread(target=capture_frames)
+capture_thread.start()
+
+
+@app.route('/video_feed')
+async def video_feed(request):
+    frame = None
+    with buffer_lock:
+        frame = frame_buffer
+    if frame is None:
+        return response.text("No frame available", status=503)
+    return response.raw(b'--frame\r\n'
+                        b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n',
+                        headers={'Content-Type': 'multipart/x-mixed-replace; boundary=frame'})
+
+@app.route("/get-video")
+async def get_video(request):
+    return await response.file('test.html')
 
 
 @app.route("/get-data")
