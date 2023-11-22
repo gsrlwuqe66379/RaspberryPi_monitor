@@ -1,20 +1,24 @@
-import threading
-
-from sanic import Sanic, response
-from sanic.response import json
-from sanic.response import text
-from sanic_cors import CORS
-import psycopg2
+import os
 import random
+import subprocess
 import time
-import cv2
 
-app = Sanic(__name__)
+import psycopg2
+from flask import Flask, send_file, json
+from flask_cors import CORS
+
+
+app = Flask(__name__)
 CORS(app)
 
 
+@app.route('/')
+def index():
+    return send_file('stream.m3u8', mimetype='application/x-mpegURL')
+
+
 @app.route("/current-data")
-async def get_data(request):
+def get_current_data():
     try:
         conn = psycopg2.connect(
             host="192.168.31.14",
@@ -45,11 +49,11 @@ async def get_data(request):
             "quality": round(random.uniform(0, 300), 1)
         }
     print(data)
-    return json({"code": 20000, "data": data})
+    return json.dumps({"code": 20000, "data": data})
 
 
 @app.route("/data")
-async def get_temperature(request):
+def get_data():
     data = {
         "time": ["2023-10-26T10:15:00",
                  "2023-10-26T10:14:00",
@@ -80,84 +84,52 @@ async def get_temperature(request):
                   round(random.uniform(100, 1000), 1),
                   round(random.uniform(100, 1000), 1), ]
     }
-    # print(type(data))
     print(data)
-    return json({"code": 20000,
-                 "data": data})
+    # print(type(data))
+    return json.dumps({"code": 20000, "data": data})
 
 
-@app.route("/")
-async def hello_world(request):
-    return text("Hello, world.")
+
+@app.route('/stream.m3u8')
+def index_1():
+    return send_file('stream.m3u8', mimetype='application/x-mpegURL')
 
 
-# server.py
-frame_buffer = None
-buffer_lock = threading.Lock()
+@app.route('/favicon.ico')
+def favicon():
+    return '', 204
 
 
-def capture_frames():
-    global frame_buffer
-    camera = cv2.VideoCapture(0)
-    while True:
-        success, frame = camera.read()  # read the camera frame
-        if not success:
-            break
-        else:
-            ret, buffer = cv2.imencode('.jpg', frame)
-            with buffer_lock:
-                frame_buffer = buffer.tobytes()
-
-
-# Start the capture thread
-capture_thread = threading.Thread(target=capture_frames)
-capture_thread.start()
+@app.route('/<path:path>')
+def stream(path):
+    return send_file(path)
 
 
 @app.route('/video_feed')
-async def video_feed(request):
-    frame = None
-    with buffer_lock:
-        frame = frame_buffer
-    if frame is None:
-        return response.text("No frame available", status=503)
-    return response.raw(b'--frame\r\n'
-                        b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n',
-                        headers={'Content-Type': 'multipart/x-mixed-replace; boundary=frame'})
+def video_feed():
+    return send_file('123.jpg')
 
 
-@app.route("/get-video")
-async def get_video(request):
-    return await response.file('templates/test.html')
+def gen(camera):
+    while True:
+        frame = camera.get_frame()
+        yield (b'--frame\r\n'
+               b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
 
 
-@app.route("/get-data")
-async def get_record(request):
-    print("get-data")
-    conn = psycopg2.connect(
-        host="192.168.31.14",
-        database="postgres",
-        user="postgres",
-        password="12345678"
-    )
-    cur = conn.cursor()
-    print("get-data_2")
-    cur.execute("SELECT temperature, wet, record_time FROM record")
-    rows = cur.fetchall()
-    data = []
-    for row in rows:
-        record_time_str = row[2].strftime('%Y-%m-%d %H:%M:%S')
-        print(record_time_str)
-        data.append({
-            "temperature": row[0],
-            "wet": row[1],
-            "record_time": record_time_str
-        })
-    cur.close()
-    conn.close()
-    return json({"code": 20000,
-                 "data": data})
+def start_ffmpeg_stream():
+    command = [
+        'ffmpeg',
+        '-i', '/dev/video0',  # 摄像头设备
+        '-f', 'hls',
+        '-hls_time', '1',  # 每个 .ts 文件的长度（秒）
+        '-hls_list_size', '5',  # .m3u8 文件中保留的 .ts 文件数量
+        'stream.m3u8'
+    ]
+    ffmpeg = subprocess.Popen(command)
+    return ffmpeg
 
 
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=7777, debug=False)
+if __name__ == '__main__':
+    # ffmpeg = start_ffmpeg_stream()
+    app.run(host='0.0.0.0', port=7777)

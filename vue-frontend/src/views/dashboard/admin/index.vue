@@ -4,8 +4,8 @@
     <el-row style="background:#fff;padding:16px 16px 0;margin-bottom:32px;">
       <line-chart :chart-data="lineChartData" />
     </el-row>
+      <streamvideo/>
       <el-dialog :visible.sync="formVisible" title="query sensor data" width="60%">
-
       <Filiterform/>
     </el-dialog >
   </div>
@@ -21,6 +21,7 @@ import BarChart from './components/BarChart'
 import TransactionTable from './components/TransactionTable'
 import TodoList from './components/TodoList'
 import BoxCard from './components/BoxCard'
+import streamvideo from './components/streamvideo'
 import Filiterform from './components/Filiterform'
 import { getSensorData } from '@/api/sensor'
 
@@ -60,6 +61,7 @@ export default {
     TodoList,
     BoxCard,
     Filiterform,
+    streamvideo,
   },
   data() {
     return {
@@ -80,6 +82,7 @@ export default {
     },
     fetchdata(){
       getSensorData().then(response => {
+        console.log(response)
         this.time = response.data.time
         this.temperature = response.data.temperature
         this.humidity = response.data.humidity

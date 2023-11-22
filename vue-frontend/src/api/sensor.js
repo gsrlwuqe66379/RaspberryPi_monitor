@@ -13,3 +13,10 @@ export function getSensorData() {
     method: 'get',
   })
 }
+
+export function getstreamVideo() {
+  return request({
+    url: 'http://localhost:7777/video_feed',
+    method: 'get',
+  })
+}
