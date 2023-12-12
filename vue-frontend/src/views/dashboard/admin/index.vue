@@ -1,10 +1,12 @@
 <template>
   <div class="dashboard-editor-container">
+    <div class="container">
+    <streamvideo/>
     <panel-group @handleSetLineChartData="handleSetLineChartData" @handleQueryData="handleQueryData"/>
+    </div>
     <el-row style="background:#fff;padding:16px 16px 0;margin-bottom:32px;">
       <line-chart :chart-data="lineChartData" />
     </el-row>
-      <streamvideo/>
       <el-dialog :visible.sync="formVisible" title="query sensor data" width="60%">
       <Filiterform/>
     </el-dialog >
@@ -80,7 +82,7 @@ export default {
     handleQueryData() {
       this.formVisible = !this.formVisible
     },
-    fetchdata(){
+    fetchdata() {
       getSensorData().then(response => {
         console.log(response)
         this.time = response.data.time
@@ -107,7 +109,6 @@ export default {
   padding: 32px;
   background-color: rgb(240, 242, 245);
   position: relative;
-
   .github-corner {
     position: absolute;
     top: 0px;

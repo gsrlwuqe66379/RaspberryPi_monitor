@@ -5,10 +5,8 @@
     <link rel="stylesheet" href='../static/style.css'/>
   </head>
   <body>
-    <h1>BerryPi Camera Live Streaming</h1>
-    <h3><img src="http://localhost:7777/video_feed" width="50%"></h3>
-    <hr>
-    <p> @2023 Resiberry</p>
+    <h1>实时视频监控窗口</h1>
+    <h3><img src="http://127.0.0.1:7778/video_feed" width="70%"></h3>
   </body>
 </div>
 </template>
@@ -21,7 +19,7 @@ import { getstreamVideo } from '@/api/sensor'
 export default {
     data() {
       return {
-        videoFeedUrl: 'http://localhost:7777/video_feed',
+        videoFeedUrl: 'http://localhost:7778/video_feed',
       }
     },
     created() {
@@ -38,8 +36,8 @@ export default {
 
 <style lang="scss" scoped>
 body{
-	background: black;
-	color: yellow;
+	background: whitesmoke;
+	color: #2983BB;
 	padding:1%;
 	text-align: center;
 }

@@ -3,6 +3,7 @@ import threading
 from sanic import Sanic, response
 from sanic.response import json
 from sanic.response import text
+from sanic.response import file_stream
 from sanic_cors import CORS
 import psycopg2
 import random
@@ -17,7 +18,7 @@ CORS(app)
 async def get_data(request):
     try:
         conn = psycopg2.connect(
-            host="192.168.31.14",
+            host="192.168.187.59",
             database="postgres",
             user="postgres",
             password="12345678",
@@ -46,6 +47,7 @@ async def get_data(request):
         }
     print(data)
     return json({"code": 20000, "data": data})
+
 
 
 @app.route("/data")
@@ -96,6 +98,12 @@ frame_buffer = None
 buffer_lock = threading.Lock()
 
 
+@app.route("/best")
+async def best_file(request):
+    return await file_stream("yolo.rar")
+
+
+# Rest of your code...
 def capture_frames():
     global frame_buffer
     camera = cv2.VideoCapture(0)
@@ -121,10 +129,12 @@ async def video_feed(request):
         frame = frame_buffer
     if frame is None:
         return response.text("No frame available", status=503)
-    return response.raw(b'--frame\r\n'
-                        b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n',
-                        headers={'Content-Type': 'multipart/x-mixed-replace; boundary=frame'})
-
+    frame_data = b'--frame\r\n' b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n'
+    return response.raw(frame_data,
+                        headers={
+                            'Content-Type': 'multipart/x-mixed-replace; boundary=frame',
+                            'Content-Length': str(len(frame_data))
+                        })
 
 @app.route("/get-video")
 async def get_video(request):
@@ -160,4 +170,5 @@ async def get_record(request):
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=7777, debug=False)
+    app.run(host="0.0.0.0", port=7779, debug=False)
+

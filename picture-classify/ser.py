@@ -2,9 +2,10 @@ import os
 import random
 import subprocess
 import time
+import cv2
 
 import psycopg2
-from flask import Flask, send_file, json
+from flask import Flask, send_file, json, Response
 from flask_cors import CORS
 
 
@@ -107,15 +108,29 @@ def stream(path):
 
 @app.route('/video_feed')
 def video_feed():
-    return send_file('123.jpg')
+    return Response(gen(),
+                    mimetype='multipart/x-mixed-replace; boundary=frame')
 
 
-def gen(camera):
+def gen(camera=0):
     while True:
-        frame = camera.get_frame()
-        yield (b'--frame\r\n'
-               b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
-
+        try:
+            frame = camera.get_frame()
+            yield (b'--frame\r\n'
+                   b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
+        except Exception as e:
+            cap = cv2.VideoCapture(0)
+            if not cap.isOpened():
+                raise Exception("Could not open video device")
+            cap.set(cv2.CAP_PROP_AUTO_EXPOSURE, 0.25) # 0.25 turns OFF camera auto exposure
+            cap.set(cv2.CAP_PROP_EXPOSURE, 4) # -4 sets the exposure to the desired value
+            ret, frame = cap.read()
+            cap.release()
+            if not ret:
+                raise Exception("Could not read frame from video device")
+            ret, jpeg = cv2.imencode('.jpg', frame)
+            yield (b'--frame\r\n'
+                   b'Content-Type: image/jpeg\r\n\r\n' + jpeg.tobytes() + b'\r\n')
 
 def start_ffmpeg_stream():
     command = [
