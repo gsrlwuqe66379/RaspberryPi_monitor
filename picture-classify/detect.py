@@ -67,8 +67,6 @@ class VideoCamera(object):
 
             frame = self.plot_bboxes(frame, pred_boxes)
 
-
-            # 因为opencv读取的图片并非jpeg格式，因此要用motion JPEG模式需要先将图片转码成jpg格式图片
             ret, jpeg = cv2.imencode('.jpg', frame)
             return jpeg.tobytes()
 

@@ -40,7 +40,7 @@
       </div>
     </el-col>
     <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
-      <div class="card-panel" @click="handleSetLineChartData('newVisitis')">
+      <div class="card-panel" @click="handleSetLineChartData('airquality')">
         <div class="card-panel-icon-wrapper icon-message">
           <svg-icon icon-class="dashboard" class-name="card-panel-icon" />
         </div>
@@ -65,7 +65,25 @@
         </div>
       </div>
     </el-col>
-   
+    <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
+      <div class="card-panel" @click="handle()">
+        <div class="card-panel-icon-wrapper icon-message">
+          <svg-icon icon-class="fullscreen" class-name="card-panel-icon" />
+        </div>
+        <div class="card-panel-description">
+          <div class="card-panel-text">
+            Video
+          </div>
+          <p class="card-panel-num">look</p>
+        </div>
+      </div>
+    </el-col>
+    <el-dialog :visible.sync="Visible" title="标注后视频展示" width="80%">
+      <div>
+          <h3><img src="http://192.168.31.14:8000/video_feed" width="90%"></h3>
+      </div>
+    </el-dialog>
+
 
   </el-row>
 </template>
@@ -82,6 +100,7 @@ export default {
   },
   data() {
     return {
+      Visible: false,
       time: '',
       temperature: 0,
       humidity: 0,
@@ -99,6 +118,9 @@ export default {
     },
     handleQueryData() {
       this.$emit('handleQueryData')
+    },
+    handle() {
+      this.Visible = !this.Visible
     },
     updateTime() {
       const now = new Date()
@@ -130,11 +152,12 @@ export default {
       }).catch(err => {
         console.log(err)
       })
-    }},
+    }
+  },
   created() {
-      this.fetchData()
-      setInterval(this.fetchData, 10000)
-      setInterval(this.updateTime, 1000)
+    this.fetchData()
+    setInterval(this.fetchData, 10000)
+    setInterval(this.updateTime, 1000)
   }
 }
 </script>
@@ -246,5 +269,4 @@ export default {
       float: none !important;
     }
   }
-}
-</style>
+}</style>

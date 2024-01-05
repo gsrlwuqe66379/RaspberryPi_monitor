@@ -61,10 +61,10 @@ export default {
       this.chart = echarts.init(this.$el, 'macarons')
       this.setOptions(this.chartData)
     },
-    setOptions({ expectedData, actualData, predictedData} = {}) {
+    setOptions({ actualData, expectedData} = {}) {
       this.chart.setOption({
         xAxis: {
-          data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+          data: ['Day1', 'Day2', 'Day3', 'Day4', 'Day5', 'Day6', 'Day7'],
           boundaryGap: false,
           axisTick: {
             show: false
@@ -90,7 +90,7 @@ export default {
           }
         },
         legend: {
-          data: ['last week', 'actual', 'prediction']
+          data: ['last week', 'forecast']
         },
         series: [
           {
@@ -100,24 +100,28 @@ export default {
                 lineStyle: {
                   color: '#FF005A',
                   width: 2
+                },
+                areaStyle: {
+                  color: '#F6DEAD'
                 }
               }
             },
             smooth: true,
             type: 'line',
-            data: expectedData,
+            data: actualData,
             animationDuration: 2800,
             animationEasing: 'cubicInOut'
           },
+         
           {
-            name: 'actual',
+            name: 'forecast',
             smooth: true,
             type: 'line',
             itemStyle: {
               normal: {
-                color: '#3888fa',
+                color: '#51A8DD',
                 lineStyle: {
-                  color: '#3888fa',
+                  color: '#51A8DD',
                   width: 2
                 },
                 areaStyle: {
@@ -125,27 +129,7 @@ export default {
                 }
               }
             },
-            data: actualData,
-            animationDuration: 2800,
-            animationEasing: 'quadraticOut'
-          },
-          {
-            name: 'prediction',
-            smooth: true,
-            type: 'line',
-            itemStyle: {
-              normal: {
-                color: '#ffEE22',
-                lineStyle: {
-                  color: '#ffEE22',
-                  width: 2
-                },
-                areaStyle: {
-                  color: '#f3f8ff'
-                }
-              }
-            },
-            data: predictedData,
+            data: expectedData,
           }
         ]
       })

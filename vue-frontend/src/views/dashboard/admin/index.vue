@@ -10,6 +10,33 @@
       <el-dialog :visible.sync="formVisible" title="query sensor data" width="60%">
       <Filiterform/>
     </el-dialog >
+    <el-table :data="tableData">
+      <el-table-column prop="time" label="time" width="200">
+        <template slot-scope="scope">
+          <span>{{ scope.row.time }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column prop="temperature" label="temperature" width="150">
+        <template slot-scope="scope">
+          <span>{{ scope.row.temperature }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column prop="humidity" label="humidity" width="150">
+        <template slot-scope="scope">
+          <span>{{ scope.row.humidity }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column prop="light" label="light" width="150">
+        <template slot-scope="scope">
+          <span>{{ scope.row.light }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column prop="air_quality" label="air_quality" width="150">
+        <template slot-scope="scope">
+          <span>{{ scope.row.air_quality }}</span>
+        </template>
+      </el-table-column>
+    </el-table>
   </div>
 </template>
 
@@ -25,30 +52,27 @@ import TodoList from './components/TodoList'
 import BoxCard from './components/BoxCard'
 import streamvideo from './components/streamvideo'
 import Filiterform from './components/Filiterform'
-import { getSensorData } from '@/api/sensor'
+import { getSensorData ,getweatherforecast} from '@/api/sensor'
 
 let lineChartData = {
-  newVisitis: {
-    expectedData: [100, 120, 161, 134, 105, 160, 165],
-    actualData: [120, 82, 91, 154, 162, 140, 145],
-    predictedData: [110, 82, 91, 154, 162, 140, 145]
+  airquality: {
+    expectedData: [],
+    actualData: [],
   },
   temperature: {
-    expectedData: [20, 19, 12, 14, 16, 13, 14],
+    expectedData: [],
     actualData: [],
-    predictedData:[]
   },
   humidity: {
-    expectedData: [80, 60, 40, 45, 65, 75, 80],
+    expectedData: [],
     actualData: [],
-    predictedData:[]
   },
   light: {
-    expectedData: [60, 140, 250, 400, 545, 350, 260],
+    expectedData: [],
     actualData: [],
-    predictedData:[]
   }
 }
+let tableData = []
 
 export default {
   name: 'DashboardAdmin',
@@ -67,6 +91,7 @@ export default {
   },
   data() {
     return {
+      tableData: tableData,
       formVisible: false,
       lineChartData: lineChartData.temperature,
       time: '',
@@ -89,11 +114,36 @@ export default {
         this.temperature = response.data.temperature
         this.humidity = response.data.humidity
         this.light = response.data.light
-        console.log(this.time)
+        this.air_quality = response.data.air_quality
         console.log(lineChartData)
         lineChartData.temperature.actualData=this.temperature
         lineChartData.humidity.actualData=this.humidity
         lineChartData.light.actualData=this.light
+        lineChartData.airquality.actualData=this.air_quality
+        for (let index = 0; index < this.time.length; index++) {
+          const element = {
+            time: this.time[index],
+            temperature: this.temperature[index],
+            humidity: this.humidity[index],
+            light: this.light[index],
+            air_quality: this.air_quality[index]
+          };
+          tableData.push(element)
+        }
+        
+        console.log("123")
+        console.log(tableData)
+      })
+      getweatherforecast().then(response => {
+        console.log(response)
+        this.temperature = response.data.temperature
+        this.humidity = response.data.humidity
+        this.light = response.data.light
+        this.air_quality = response.data.air_quality
+        lineChartData.temperature.expectedData=this.temperature
+        lineChartData.humidity.expectedData=this.humidity
+        lineChartData.light.expectedData=this.light
+        lineChartData.airquality.expectedData=this.air_quality
         console.log(lineChartData)
       })
     }

@@ -1,14 +1,19 @@
 import threading
+from datetime import datetime, timedelta
 
 from sanic import Sanic, response
 from sanic.response import json
 from sanic.response import text
 from sanic.response import file_stream
 from sanic_cors import CORS
+import weather
 import psycopg2
 import random
 import time
 import cv2
+
+weather_forecast = weather.WeatherForecast()
+weather_forecast.get_forecast()
 
 app = Sanic(__name__)
 CORS(app)
@@ -49,38 +54,35 @@ async def get_data(request):
     return json({"code": 20000, "data": data})
 
 
+@app.route("/forecast")
+async def get_forecast(request):
+    data = {
+        "temperature": weather_forecast.get_temperature(),
+        "humidity": weather_forecast.get_humidity(),
+        "air_quality": weather_forecast.get_air_quality()
+    }
+    return json({"code": 20000, "data": data})
+
 
 @app.route("/data")
 async def get_temperature(request):
+    temperature = []
+    humidity = []
+    light = []
+    air_quality = []
+    time = []
+    for i in range(0, 24):
+        time.append((datetime.now() - timedelta(hours=i)).strftime('%Y-%m-%d %H:%M:%S'))
+        temperature.append(round(random.uniform(10, 20), 1))
+        humidity.append(round(random.uniform(50, 80), 1))
+        light.append(round(random.uniform(100, 1000), 1))
+        air_quality.append(round(random.uniform(0, 100), 1))
     data = {
-        "time": ["2023-10-26T10:15:00",
-                 "2023-10-26T10:14:00",
-                 "2023-10-26T10:13:00",
-                 "2023-10-26T10:12:00",
-                 "2023-10-26T10:11:00",
-                 "2023-10-26T10:10:00",
-                 "2023-10-26T10:09:00", ],
-        "temperature": [round(random.uniform(20, 30), 1),
-                        round(random.uniform(20, 30), 1),
-                        round(random.uniform(20, 30), 1),
-                        round(random.uniform(20, 30), 1),
-                        round(random.uniform(20, 30), 1),
-                        round(random.uniform(20, 30), 1),
-                        round(random.uniform(20, 30), 1), ],
-        "humidity": [round(random.uniform(30, 90), 1),
-                     round(random.uniform(30, 90), 1),
-                     round(random.uniform(30, 90), 1),
-                     round(random.uniform(30, 90), 1),
-                     round(random.uniform(30, 90), 1),
-                     round(random.uniform(30, 90), 1),
-                     round(random.uniform(30, 90), 1), ],
-        "light": [round(random.uniform(100, 1000), 1),
-                  round(random.uniform(100, 1000), 1),
-                  round(random.uniform(100, 1000), 1),
-                  round(random.uniform(100, 1000), 1),
-                  round(random.uniform(100, 1000), 1),
-                  round(random.uniform(100, 1000), 1),
-                  round(random.uniform(100, 1000), 1), ]
+        "time": time,
+        "temperature": temperature,
+        "humidity": humidity,
+        "light": light,
+        "air_quality": air_quality
     }
     # print(type(data))
     print(data)
@@ -119,7 +121,9 @@ def capture_frames():
 
 # Start the capture thread
 capture_thread = threading.Thread(target=capture_frames)
-capture_thread.start()
+
+
+# capture_thread.start()
 
 
 @app.route('/video_feed')
@@ -135,6 +139,7 @@ async def video_feed(request):
                             'Content-Type': 'multipart/x-mixed-replace; boundary=frame',
                             'Content-Length': str(len(frame_data))
                         })
+
 
 @app.route("/get-video")
 async def get_video(request):
@@ -170,5 +175,4 @@ async def get_record(request):
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=7779, debug=False)
-
+    app.run(host="0.0.0.0", port=8888, debug=False)

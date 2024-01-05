@@ -37,9 +37,15 @@
                     }" />
                 </el-col>
             </el-form-item>
-            <el-select></el-select>
+            <el-select v-model="selectedOption" placeholder="请选择" style="margin: 20px;">
+                <el-option label="温度" value="temperature"></el-option>
+                <el-option label="湿度" value="humidity"></el-option>
+                <el-option label="光照强度" value="lightIntensity"></el-option>
+                <el-option label="空气质量" value="airQuality"></el-option>
+            </el-select>
+            <br>
+            <el-button type="primary" style="display: block;margin: 20px;">commit</el-button>
         </el-form>
-        <el-button type="primary">commit</el-button>
     </div>
 </template>
 
@@ -49,6 +55,7 @@
 export default {
     data() {
         return {
+            selectedOption: null,
             form: {
                 date1: '',
                 date2: '',

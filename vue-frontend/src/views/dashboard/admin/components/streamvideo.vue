@@ -6,7 +6,7 @@
   </head>
   <body>
     <h1>实时视频监控窗口</h1>
-    <h3><img src="http://127.0.0.1:7778/video_feed" width="70%"></h3>
+    <h3><img src="http://192.168.31.14:8000/video_feed" width="70%"></h3>
   </body>
 </div>
 </template>
